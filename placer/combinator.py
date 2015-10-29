@@ -22,17 +22,19 @@ def find_near(cpus, htmap):
 
 def combinator(benches, cpus, htmap, r=[], d=1):
   if not benches:
-    return print(r)
+    yield r
+    return
   a,b, *benches = benches
   far, newcpus = find_far(cpus, htmap)
   if far:
-    combinator(benches, newcpus, htmap, r+list(zip(far, [a,b])),d+1)
+    yield from combinator(benches, newcpus, htmap, r+list(zip(far, [a,b])),d+1)
   near, newcpus = find_near(cpus, htmap)
   if near:
-    combinator(benches, newcpus, htmap, r+list(zip(near, [a,b])), d+1)
+    yield from combinator(benches, newcpus, htmap, r+list(zip(near, [a,b])), d+1)
 
 
 if __name__ == '__main__':
   from perf.numa import topology
-  combinator("a b c d".split(), [0,1,2,3], topology.ht_map)
+  for alloc in combinator("a b c d".split(), [0,1,2,3], topology.ht_map):
+    print(alloc)
 
