@@ -35,19 +35,20 @@ if HOSTNAME in ['limit', 'fx']:
   RESULTS = "./results/limit/"
   BOOT_TIME = 15
 
-#  template = Template(
-#    name = "template",
-#    auto = False,
-#    #cpus = [0],  # affinity
-#    mem  = 2048,
-#    #boot = "d",
-#    net  = [Bridged(ifname="research", model='virtio-net',
-#           mac="52:54:91:5E:38:BB", br="intbr")],
-#    drives = [Drive("/home/virtuals/research.qcow2",
-#              iface="virtio", cache="unsafe"),
-#              #CDROM("/home/virtuals/archlinux-2014.03.01-dual.iso")
-#              ]
-#  )
+  template = Template(
+    name = "template",
+    auto = False,
+    #cpus = [0],  # affinity
+    mem  = 2048,
+    cores = 4,
+    #boot = "d",
+    net  = [Bridged(ifname="research", model='virtio-net',
+           mac="52:54:91:5E:38:BB", br="intbr")],
+    drives = [Drive("/home/virtuals/research.qcow2",
+              iface="virtio", cache="unsafe"),
+              #CDROM("/home/virtuals/archlinux-2014.03.01-dual.iso")
+              ]
+  )
 
 
   print("CPU AFFINITY DISABLED")
@@ -122,6 +123,20 @@ basis = dict(
 
 validate = dict(
   bitrix = "siege -c 100 -t 666h http://localhost/",
+)
+
+def loop(cmd, dir=None):
+  loopcmd = "while true; do {cmd} || break; echo '====='; done".format(cmd=cmd)
+  loopcmd = "sh -c '%s'" % loopcmd
+  if dir:
+    loopcmd = "cd %s && " % dir + loopcmd
+  return loopcmd
+
+newtests = dict(
+  gcc = "sh -c 'cd /home/sources/linux-4.3; while true; do make clean --quiet && make -j2 --quiet || break; echo '====='; done'",
+  zip_kern = "zip -qr /dev/null /home/sources/linux-4.3_dist",
+  bzip2_kern = loopcmd("tar -cj /home/sources/linux-4.3_dist > /dev/null"),
+  sb_cpu = loopcmd("sysbench --test=cpu --cpu-max-prime=100000 run"),
 )
 
 
