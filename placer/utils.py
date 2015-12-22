@@ -40,7 +40,7 @@ class KVMSanitizer:
   def __exit__(self, ex_type, ex_val, ex_tb):
     if ex_type:
       print("exception in block:\n", ex_type, ex_val)
-      #import pdb; pdb.set_trace()
+      import pdb; pdb.set_trace()
     print("tearing down the system")
     for vm in self.vms:
       if not vm.pid:
